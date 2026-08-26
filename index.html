@@ -245,6 +245,7 @@ const IC_PROD=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke
 const S=[
  {t:'title',kick:'A working session for fashion founders · Bali',h:`The part you <em>can’t see</em> decides everything.`,sub:`Welcome. Let’s meet the room first.`,qs:['Who are you?','What are you building?','What stage is it at?']},
  {t:'timeline',kick:'My path',items:['Architecture','Commercial interiors','Marketing agency — Milka, Oreo, Coca-Cola','Russian fashion retail chains','My own studio','Emigration & rebrand']},
+ {t:'whoami',src:'777wave-hero.html',title:'WAVE'},
  {t:'stmt',kick:'Why we’re here',h:`Why some brands work — and <em>others don’t.</em>`},
  {t:'flow',kick:'How a brand usually gets built',items:['Collection','First batch','Fabrics & trims','Production'],icons:[IC_COLL,IC_BATCH,IC_FABRIC,IC_PROD],note:'All the energy goes into the product.'},
  {t:'flow',kick:'…and then',items:['Content','SMM agency','Almost no sales'],bigq:'Why?'},
@@ -278,7 +279,7 @@ function flow(s){const ch=s.items.map((x,k)=>`${k?'<span class="sep">→</span>'
 function channels(){return `<div class="wrap"><p class="kick">Where the money goes</p><h1 class="big">Channels only <em>carry</em> the brand.</h1><div class="chan"><div class="b">Brand<span>the substance</span></div><span class="sep">→</span><div class="b">Channels<span>SMM · ads · marketing</span></div><span class="sep">→</span><div class="chanhead"><img src="${HEAD}" alt="Buyer"/></div></div><div class="contrast"><div class="bad">Nothing to carry = wasted budget</div><div class="good">A formed brand = ads that actually work</div></div></div>`;}
 function notdef(s){const inner=`<h1 class="big">${s.h}</h1><div class="nots">${s.nots.map(x=>`<div class="x">${x}</div>`).join('')}</div><p class="isline">${s.is}</p>`;return s.img?`<div class="wrap"><div class="row2"><img class="headimg" src="${s.img}" alt=""><div class="txt">${inner}</div></div></div>`:`<div class="wrap">${inner}</div>`;}
 function timeline(s){return `<div class="wrap"><p class="kick">${s.kick}</p><div class="tl">${s.items.map(x=>`<div class="row"><span class="dot"></span>${x}</div>`).join('')}</div></div>`;}
-function whoami(s){return `<iframe class="animfull" src="${ANIM}" title="Wave"></iframe>`;}
+function whoami(s){return `<iframe class="animfull" src="${s.src||ANIM}" title="${s.title||'Wave'}"></iframe>`;}
 function logos(s){return `<div class="wrap"><p class="kick">${s.kick}</p><div class="logorow">${s.items.map(it=>`<div class="logocol"><div class="logochip"><img src="${it.img}" alt="${it.name}"/></div><div class="logoname">${it.name}</div></div>`).join('')}</div></div>`;}
 function linkS(s){const lk=s.links.map(l=>`<a class="linkcard" href="${l.url}" target="_blank" rel="noopener">${l.label}<span class="arw">\u2197</span></a>`).join('');return `<div class="wrap">${s.kick?`<p class="kick">${s.kick}</p>`:''}<h1 class="big">${s.h}</h1><div class="links">${lk}</div></div>`;}
 function ig(s){return `<div class="wrap" style="text-align:center"><div class="qrbox" style="display:inline-block"><img src="${IGQR}" alt="Instagram QR"/></div><div style="margin-top:26px;font-family:var(--display);font-weight:600;font-size:clamp(30px,3.6vw,56px)">${s.handle}</div></div>`;}
