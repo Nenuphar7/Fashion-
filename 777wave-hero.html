@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WAVE — thermal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none; user-select: none; }
+  html, body { width: 100%; height: 100%; overflow: hidden;
+      touch-action: none; overscroll-behavior: none; }
+  body { background: rgb(128,124,134); }
+  canvas#c { display: block; width: 100vw; height: 100vh; touch-action: none; }
+
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@500&display=swap" rel="stylesheet">
+<style id="wave-hud">
+  :root{
+    --m: clamp(18px, 2.8vw, 46px);
+    --expw: clamp(196px, 22.95vw, 306px);
+    --w1: rgba(255,255,255,.95);
+    --w2: rgba(255,255,255,.6);
+    --grotesk: "Space Grotesk", system-ui, sans-serif;
+    --slogan-font: "Outfit", "Space Grotesk", system-ui, sans-serif;
+  }
+  .hud{ position:fixed; inset:0; z-index:10; pointer-events:none; color:var(--w1);
+        font-family:var(--grotesk); -webkit-font-smoothing:antialiased; }
+  .hud svg{ display:block; }
+
+  .tc{ position:absolute; top:calc(var(--m) + 2px); left:50%; transform:translateX(-50%); text-align:center; white-space:nowrap; }
+  .tr{ position:absolute; top:var(--m); right:var(--m); text-align:right; }
+
+  /* menu (top-left) — tap shows a white plaque */
+  .menu{ position:absolute; top:var(--m); left:var(--m); display:flex; flex-direction:column; gap:.5em; pointer-events:auto; }
+  .menu span{ font-weight:500; font-size: clamp(12px,1.2vw,15px); letter-spacing:.02em; color:var(--w1);
+              display:inline-block; align-self:flex-start; padding:.14em .5em; margin-left:-.5em; cursor:pointer;
+              transition: background .12s ease, color .12s ease; }
+  .menu span:hover, .menu span:focus, .menu span:active{ background:#fff; color:#111; outline:none; }
+
+  .eyebrow{ text-transform:uppercase; font-weight:500; color:var(--w1);
+            font-size: clamp(11px,1.15vw,15px); letter-spacing:.3em; }
+  .eyebrow .sh{ display:none; }
+
+  .since{ font-weight:500; font-size: clamp(12px,1.2vw,15px); letter-spacing:.1em; color:var(--w1); }
+
+  /* ultrasound scale (left edge, vertical center) */
+  .scale{ position:absolute; left:calc(var(--m) - 6px); top:50%; transform:translateY(-50%);
+          width: clamp(71px,8.1vw,105px); height: clamp(289px,61vh,561px); color:var(--w1);
+          }
+  .scale svg{ width:100%; height:100%; }
+
+  /* right column — one container, everything aligned to the chain's (arrows) left edge */
+  .rightcol{ position:absolute; right:var(--m); top:46%; bottom:var(--m);
+             display:flex; flex-direction:column; align-items:flex-start; }
+  .midR{ display:flex; flex-direction:row; gap: clamp(10px,1.2vw,17px); align-items:center;
+         margin-bottom: clamp(16px,2.6vh,34px); }
+  .midR .ic{ width: clamp(37px,4.08vw,53px); height: clamp(37px,4.08vw,53px);
+             }
+
+  .notes{ display:flex; flex-direction:row; gap: clamp(20px,2.4vw,42px); }
+  .ncol{ display:flex; flex-direction:column; gap: clamp(10px,1.2vw,18px); }
+  .note{ text-transform:uppercase; font-weight:400;
+         font-size: clamp(9px,.92vw,12px); letter-spacing:.2em; line-height:1.5; color:#fff; }
+
+  .spacer{ flex:1 1 auto; }
+  .exp{ color:var(--w1); width: var(--expw); margin-bottom: clamp(12px,1.6vh,22px);
+        }
+  .exp svg{ width:100%; height:auto; }
+  .chain{ display:flex; align-items:center; white-space:nowrap; color:var(--w1);
+          font-weight:500; font-size: clamp(11px,1.1vw,15px); letter-spacing:.05em; }
+  .chain .w{ display:inline-block; }
+  .chain .ar{ width: 1.7em; height: .9em; margin:0 .3em; color:#fff; flex:0 0 auto; }
+
+  /* slogan (bottom-left) */
+  .sblock{ position:absolute; left:var(--m); bottom:var(--m); }
+  .slogan{ font-family:var(--slogan-font); font-weight:500; color:#fff; line-height:1;
+           letter-spacing:-.005em; white-space:nowrap; font-size: clamp(31px, 5.5vw, 77px); }
+
+  @media (max-aspect-ratio: 1/1){
+    .scale{ display:none; }
+    .chain{ display:none; }
+    .menu{ display:none; }
+    .notes{ display:none; }
+    .spacer{ display:none; }
+    .rightcol{ display:contents; }
+    .eyebrow .lg{ display:none; } .eyebrow .sh{ display:inline; }
+    .eyebrow{ letter-spacing:.1em; font-size:10px; }
+    .tc{ left:var(--m); transform:none; text-align:left; }
+    .exp{ position:absolute; left:50%; transform:translateX(-50%); bottom:auto;
+          top: clamp(92px,12vh,140px); width: clamp(210px,72vw,330px); margin-bottom:0; }
+    .midR{ position:absolute; left:auto; right: calc(var(--m) - 4px); top:50%; transform:translateY(-50%);
+           gap:12px; flex-direction:column; margin-bottom:0; }
+    .midR .ic{ width: clamp(42px,11vw,54px); height: clamp(42px,11vw,54px); }
+    .slogan{ font-size: clamp(29px, 8.28vw, 56px); }
+  }
+</style>
+
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <script>
+const GRAD_SRC = "data:image/jpeg;base64,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";
+(() => {
+  const canvas = document.getElementById('c');
+  const gl = canvas.getContext('webgl2', { alpha: false, antialias: false, premultipliedAlpha: false });
+  if (!gl) { console.error('WebGL2 not available'); return; }
+
+  const WORD = ['w', 'A', 'v', 'e'];
+  const FONT = '"Bagel Fat One", system-ui, "Arial Black", sans-serif';
+  const GHREF = 240;               // разрешение построения SDF (фикс, не зависит от экрана)
+  const TARGET_CAP_FRAC = 0.30;    // высота капса относительно высоты экрана
+
+  const HEAT_BG = [128, 124, 134];
+  const HEAT_STOPS = [
+    [-1.5, 230, 220, 242],
+    [-0.9, 233, 55, 58],
+    [-0.35, 250, 125, 45],
+    [0.0, 255, 226, 120],
+    [0.7, 233, 96, 182],
+    [2.0, 140, 74, 160],
+    [4.0, 140, 74, 160],
+  ];
+  const ST0 = HEAT_STOPS[0][0];
+  const LASTC = HEAT_STOPS[HEAT_STOPS.length - 1][0];
+
+  const P = { speed: 0.9, k: 40, spread: 1.05, size: 1.0, bgAmp: 1.1, bgContrast: 0.35, cellSize: 1.85 };
+  // Пресеты по ориентации (считаны со скринов)
+  const PRESETS = {
+    landscape: { speed: 0.35, k: 105, spread: 0.97, size: 1.05, bgAmp: 1.1, bgContrast: 0.35, cellSize: 1.85 }, // десктоп / планшет
+    portrait:  { speed: 0.45, k: 108, spread: 1.05, size: 0.68, bgAmp: 1.1, bgContrast: 0.40, cellSize: 1.60 },  // мобайл
+  };
+  let curMode = '';
+  function applyPreset(mode) {
+    const pr = PRESETS[mode];
+    P.speed = pr.speed; P.k = pr.k; P.spread = pr.spread; P.size = pr.size;
+    P.bgAmp = pr.bgAmp; P.bgContrast = pr.bgContrast; P.cellSize = pr.cellSize;
+  }
+
+  // ---------- SDF построение (CPU, один раз) ----------
+  function edt(seed, w, h) {
+    const INF = 1e9;
+    const gx = new Float32Array(w * h), gy = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) { if (seed[i]) { gx[i] = 0; gy[i] = 0; } else { gx[i] = INF; gy[i] = INF; } }
+    const cmp = (ci, ni, ox, oy) => {
+      const cdx = gx[ni] + ox, cdy = gy[ni] + oy;
+      if (cdx * cdx + cdy * cdy < gx[ci] * gx[ci] + gy[ci] * gy[ci]) { gx[ci] = cdx; gy[ci] = cdy; }
+    };
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x;
+        if (x > 0) cmp(i, i - 1, -1, 0);
+        if (y > 0) cmp(i, i - w, 0, -1);
+        if (x > 0 && y > 0) cmp(i, i - w - 1, -1, -1);
+        if (x < w - 1 && y > 0) cmp(i, i - w + 1, 1, -1);
+      }
+      for (let x = w - 2; x >= 0; x--) { const i = y * w + x; cmp(i, i + 1, 1, 0); }
+    }
+    for (let y = h - 1; y >= 0; y--) {
+      for (let x = w - 1; x >= 0; x--) {
+        const i = y * w + x;
+        if (x < w - 1) cmp(i, i + 1, 1, 0);
+        if (y < h - 1) cmp(i, i + w, 0, 1);
+        if (x < w - 1 && y < h - 1) cmp(i, i + w + 1, 1, 1);
+        if (x > 0 && y < h - 1) cmp(i, i + w - 1, -1, 1);
+      }
+      for (let x = 1; x < w; x++) { const i = y * w + x; cmp(i, i - 1, -1, 0); }
+    }
+    const d = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) d[i] = Math.sqrt(gx[i] * gx[i] + gy[i] * gy[i]);
+    return d;
+  }
+  function computeSDF(bin, w, h) {
+    const bg = new Uint8Array(w * h);
+    for (let i = 0; i < w * h; i++) bg[i] = bin[i] ? 0 : 1;
+    const dIn = edt(bin, w, h), dOut = edt(bg, w, h);
+    const sdf = new Float32Array(w * h);
+    for (let i = 0; i < w * h; i++) sdf[i] = dIn[i] - dOut[i];
+    return sdf;
+  }
+  function measureInkH(ch, fontPx) {
+    const t = document.createElement('canvas');
+    t.width = Math.round(fontPx * 2.6 + 60); t.height = Math.round(fontPx * 2.4);
+    const c = t.getContext('2d');
+    c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.font = '400 ' + fontPx + 'px ' + FONT;
+    c.fillText(ch, t.width / 2, t.height / 2);
+    const px = c.getImageData(0, 0, t.width, t.height).data;
+    let miny = t.height, maxy = 0, found = false;
+    for (let y = 0; y < t.height; y++) {
+      let row = false;
+      for (let x = 0; x < t.width; x++) { if (px[(y * t.width + x) * 4 + 3] > 128) { row = true; break; } }
+      if (row) { found = true; if (y < miny) miny = y; if (y > maxy) maxy = y; }
+    }
+    return found ? (maxy - miny + 1) : 1;
+  }
+  function makeGlyph(ch, fontPx, pad, rBlur) {
+    const t = document.createElement('canvas');
+    t.width = Math.round(fontPx * 2.6 + 60); t.height = Math.round(fontPx * 2.4);
+    const c = t.getContext('2d');
+    c.clearRect(0, 0, t.width, t.height);
+    c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.filter = 'blur(' + rBlur + 'px)';
+    c.font = '400 ' + fontPx + 'px ' + FONT;
+    c.fillText(ch, t.width / 2, t.height / 2);
+    c.filter = 'none';
+    const px = c.getImageData(0, 0, t.width, t.height).data;
+    let minx = t.width, miny = t.height, maxx = 0, maxy = 0, found = false;
+    for (let y = 0; y < t.height; y++) {
+      for (let x = 0; x < t.width; x++) {
+        if (px[(y * t.width + x) * 4 + 3] > 128) {
+          found = true;
+          if (x < minx) minx = x; if (x > maxx) maxx = x;
+          if (y < miny) miny = y; if (y > maxy) maxy = y;
+        }
+      }
+    }
+    if (!found) { minx = 0; miny = 0; maxx = 1; maxy = 1; }
+    const iw = maxx - minx + 1, ih = maxy - miny + 1;
+    const gw = iw + pad * 2, gh = ih + pad * 2;
+    const bin = new Uint8Array(gw * gh);
+    for (let y = 0; y < ih; y++) for (let x = 0; x < iw; x++) {
+      if (px[((miny + y) * t.width + (minx + x)) * 4 + 3] > 128) bin[(y + pad) * gw + (x + pad)] = 1;
+    }
+    const sdf = computeSDF(bin, gw, gh);
+    return { sdf, gw, gh, iw, ih, rad: 0.5 * iw };
+  }
+
+  // ---------- WebGL ----------
+  const VERT = `#version 300 es
+  void main(){
+    vec2 p = vec2((gl_VertexID==1)?3.0:-1.0, (gl_VertexID==2)?3.0:-1.0);
+    gl_Position = vec4(p,0.0,1.0);
+  }`;
+  const FRAG = `#version 300 es
+  precision highp float;
+  uniform vec2 uRes;
+  uniform sampler2D uSdf0,uSdf1,uSdf2,uSdf3,uLut,uGrad;
+  uniform vec2 uCenter[4];
+  uniform vec2 uHalf[4];
+  uniform vec2 uTexSize[4];
+  uniform float uS, uInvS, uK, uTime;
+  uniform float uBgAmp, uBgContrast, uCellSize;
+  uniform vec2 uStRange;
+  uniform vec2 uSpotPos;              // курсор/палец в пикселях, начало сверху-слева
+  uniform float uSpotR, uSpotAmt;     // радиус (px) и амплитуда появления 0..1
+  out vec4 outColor;
+  const float DMIN = -90.0;
+  const float DRANGE = 430.0;
+  float decode(vec4 t){ return (t.r*65280.0 + t.g*255.0)/65535.0 * DRANGE + DMIN; }
+  float sdfBilinear(sampler2D tx, vec2 texSize, vec2 uv){
+    vec2 px = uv*texSize - 0.5;
+    vec2 p0 = floor(px);
+    vec2 f = px - p0;
+    ivec2 mx = ivec2(texSize) - ivec2(1);
+    ivec2 i0 = clamp(ivec2(p0), ivec2(0), mx);
+    ivec2 i1 = clamp(ivec2(p0) + ivec2(1), ivec2(0), mx);
+    float a = decode(texelFetch(tx, ivec2(i0.x,i0.y), 0));
+    float b = decode(texelFetch(tx, ivec2(i1.x,i0.y), 0));
+    float c = decode(texelFetch(tx, ivec2(i0.x,i1.y), 0));
+    float d = decode(texelFetch(tx, ivec2(i1.x,i1.y), 0));
+    return mix(mix(a,b,f.x), mix(c,d,f.x), f.y);
+  }
+  float sampleG(sampler2D tx, vec2 texSize, vec2 half_, vec2 rel){
+    vec2 localB = rel + half_;
+    vec2 uv = localB / texSize;
+    vec2 cl = clamp(uv, 0.0, 1.0);
+    float val = sdfBilinear(tx, texSize, cl);
+    vec2 dd = uv - cl;
+    if(dd.x != 0.0 || dd.y != 0.0){ val += length(localB - cl*texSize); }
+    return val;
+  }
+  float smin(float a, float b, float k){
+    float h = max(k - abs(a-b), 0.0)/k;
+    return min(a,b) - h*h*k*0.25;
+  }
+  float lum(vec3 c){ return dot(c, vec3(0.3, 0.59, 0.11)); }
+  vec3 clipColor(vec3 c){
+    float l = lum(c);
+    float n = min(min(c.r, c.g), c.b);
+    float x = max(max(c.r, c.g), c.b);
+    if(n < 0.0) c = l + (c - l) * (l / (l - n));
+    if(x > 1.0) c = l + (c - l) * ((1.0 - l) / (x - l));
+    return c;
+  }
+  vec3 setLum(vec3 c, float l){ return clipColor(c + (l - lum(c))); }
+vec2 vhash(vec2 p){
+    p = vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)));
+    return fract(sin(p) * 43758.5453);
+  }
+  // Гладкий 2D value-noise + доменное искажение: гнёт прямые мембраны в живые кривые.
+  float vnoise(vec2 p){
+    vec2 i = floor(p), f = fract(p);
+    f = f * f * (3.0 - 2.0 * f);
+    float a = vhash(i).x;
+    float b = vhash(i + vec2(1.0, 0.0)).x;
+    float c = vhash(i + vec2(0.0, 1.0)).x;
+    float d = vhash(i + vec2(1.0, 1.0)).x;
+    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+  }
+  vec2 warp2(vec2 p){
+    float wx = (vnoise(p) - 0.5) + 0.5 * (vnoise(p * 2.1 + 3.0) - 0.5);
+    float wy = (vnoise(p + vec2(17.3, 5.1)) - 0.5) + 0.5 * (vnoise(p * 2.1 + vec2(9.0, 2.0)) - 0.5);
+    return vec2(wx, wy);
+  }
+  vec2 vseed(vec2 cell, float t, float move){
+    vec2 h = vhash(cell);
+    return h + move * 0.18 * vec2(sin(t * 0.5 + 6.2831853 * h.x),
+                                  cos(t * 0.4 + 6.2831853 * h.y));   // статичная точка + анимация
+  }
+  // Расстояние до ГРАНИЦЫ ячейки Voronoi (метод Iñigo Quílez): 0 на шве, растёт внутрь ячейки.
+  float voronoiBorder(vec2 x, float t, float move){
+    x += warp2(x * 1.3 + vec2(t * 0.03 * move)) * 0.24;   // искажение -> кривые мембраны
+    vec2 n = floor(x), f = fract(x);
+    vec2 mg = vec2(0.0), mr = vec2(0.0);
+    float md = 8.0;
+    for(int j = -1; j <= 1; j++){          // проход 1: ближайшая точка-семя
+      for(int i = -1; i <= 1; i++){
+        vec2 g = vec2(float(i), float(j));
+        vec2 o = vseed(n + g, t, move);
+        vec2 r = g + o - f;
+        float d = dot(r, r);
+        if(d < md){ md = d; mr = r; mg = g; }
+      }
+    }
+    md = 8.0;
+    for(int j = -2; j <= 2; j++){           // проход 2: расстояние до серединной линии (шва)
+      for(int i = -2; i <= 2; i++){
+        vec2 g = mg + vec2(float(i), float(j));
+        vec2 o = vseed(n + g, t, move);
+        vec2 r = g + o - f;
+        vec2 diff = mr - r;
+        if(dot(diff, diff) > 1e-5){
+          md = smin(md, dot(0.5 * (mr + r), normalize(r - mr)), 0.08); // мягкие узлы
+        }
+      }
+    }
+    return md;
+  }
+  vec3 gradient(vec2 p){
+    float amp = uBgAmp;                       // движение поля
+    float con = uBgContrast;                  // контраст светлоты
+    float aspect = uRes.x / uRes.y;
+    float cells = 4.0 / max(uCellSize, 0.05); // больше size -> крупнее секции
+    vec2 sp = vec2(p.x * aspect, p.y) * cells;
+    vec2 drift = vec2(uTime * 0.02, uTime * 0.015) * amp;      // плавный дрейф всего поля
+    float b = voronoiBorder(sp + drift, uTime, amp);
+    float s = clamp(b * 3.0, 0.0, 1.0);                        // 0 = шов, 1 = тело ячейки
+    s = clamp(0.5 + (s - 0.5) * con, 0.0, 1.0);                // контраст структуры
+    // Держим светлоту в ТЁМНОМ диапазоне исходника (~0.15–0.50): на светлоте clipColor
+    // вымывает цвет в серый, а в тёмной зоне darkBg остаётся насыщенно-фиолетовым.
+    float Lf = mix(0.15, 0.50, s);                             // целевая светлота фона
+    return vec3(1.0 - Lf);      // композит превратит это в тёмный насыщенный фиолет
+  }
+  // Интерактивное тепловое пятно под курсором/пальцем — мягкий «отпечаток пальца»:
+  // округлый овал с плавными неровностями (доменное искажение, НЕ лучи), тихо дышит.
+  // Возвращает знаковую дистанцию в единицах глифа, чтобы слиться с буквами тем же smin.
+  float spotDist(vec2 frag){
+    vec2 rel = (frag - uSpotPos) / max(uSpotR, 1.0);          // нормируем: радиус ~1
+    rel.x *= 1.15;                                            // лёгкий овал (подушечка пальца)
+    vec2 w = warp2(rel * 0.85 + vec2(uTime * 0.10, uTime * 0.08)) - vec2(0.5);
+    rel += w * 0.30;                                          // мягкие округлые неровности
+    float dG = (length(rel) - 1.0) * uSpotR / uS;            // -> единицы глифа
+    dG += (1.0 - uSpotAmt) * (7.0 / max(uInvS, 1e-4));       // amt->0: пятна нет совсем
+    return dG;
+  }
+  void main(){
+    vec2 frag = vec2(gl_FragCoord.x, uRes.y - gl_FragCoord.y);
+    float d = sampleG(uSdf0,uTexSize[0],uHalf[0], (frag-uCenter[0])/uS);
+    d = smin(d, sampleG(uSdf1,uTexSize[1],uHalf[1], (frag-uCenter[1])/uS), uK);
+    d = smin(d, sampleG(uSdf2,uTexSize[2],uHalf[2], (frag-uCenter[2])/uS), uK);
+    d = smin(d, sampleG(uSdf3,uTexSize[3],uHalf[3], (frag-uCenter[3])/uS), uK);
+    d = smin(d, spotDist(frag), uK);                  // пятно сливается с буквами
+    float tt = d * uInvS;
+    float u = clamp((tt - uStRange.x)/(uStRange.y - uStRange.x), 0.0, 1.0);
+    vec3 heat = texture(uLut, vec2(u, 0.5)).rgb;
+    float a = 1.0 - smoothstep(0.5, 3.8, tt);
+    vec3 darkBg = vec3(22.0, 15.0, 32.0) / 255.0;
+    vec3 A = mix(darkBg, heat, a);              // тепловая картинка на тёмном фоне
+    vec3 G = gradient(frag / uRes);             // цветной градиент (постер)
+    vec3 Linv = max(A, vec3(1.0) - G);          // инверт градиента, режим Lighten
+    outColor = vec4(setLum(A, lum(Linv)), 1.0); // Color: цвет от A, светлота от Lighten-слоя
+  }`;
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src); gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(s));
+    return s;
+  }
+  const prog = gl.createProgram();
+  gl.attachShader(prog, compile(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(prog);
+  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) console.error(gl.getProgramInfoLog(prog));
+  gl.useProgram(prog);
+
+  const U = {};
+  ['uRes', 'uSdf0', 'uSdf1', 'uSdf2', 'uSdf3', 'uLut', 'uCenter', 'uHalf', 'uTexSize', 'uS', 'uInvS', 'uK', 'uStRange', 'uTime', 'uGrad', 'uBgAmp', 'uBgContrast', 'uCellSize', 'uSpotPos', 'uSpotR', 'uSpotAmt']
+    .forEach((n) => { U[n] = gl.getUniformLocation(prog, n); });
+  gl.uniform1i(U.uSdf0, 0); gl.uniform1i(U.uSdf1, 1); gl.uniform1i(U.uSdf2, 2); gl.uniform1i(U.uSdf3, 3);
+  gl.uniform1i(U.uLut, 4);
+  gl.uniform2f(U.uStRange, ST0, LASTC);
+
+  // SDF -> RGBA8 (16 бит в R:старший, G:младший). Ручная билинейная выборка в шейдере.
+  const DMIN = -90.0, DRANGE = 430.0;
+  function makeSDFTexture(g) {
+    const n = g.gw * g.gh;
+    const data = new Uint8Array(n * 4);
+    for (let i = 0; i < n; i++) {
+      let v = (g.sdf[i] - DMIN) / DRANGE;
+      if (v < 0) v = 0; else if (v > 1) v = 1;
+      const q = Math.round(v * 65535);
+      data[i * 4] = (q >> 8) & 255;
+      data[i * 4 + 1] = q & 255;
+      data[i * 4 + 2] = 0;
+      data[i * 4 + 3] = 255;
+    }
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, g.gw, g.gh, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+  }
+
+  function rampEval(tt, out) {
+    const S = HEAT_STOPS, n = S.length;
+    if (tt <= S[0][0]) { out[0] = S[0][1]; out[1] = S[0][2]; out[2] = S[0][3]; return; }
+    if (tt >= S[n - 1][0]) { out[0] = S[n - 1][1]; out[1] = S[n - 1][2]; out[2] = S[n - 1][3]; return; }
+    for (let i = 0; i < n - 1; i++) {
+      const a = S[i], b = S[i + 1];
+      if (tt <= b[0]) {
+        const f = (tt - a[0]) / (b[0] - a[0]);
+        out[0] = a[1] + (b[1] - a[1]) * f;
+        out[1] = a[2] + (b[2] - a[2]) * f;
+        out[2] = a[3] + (b[3] - a[3]) * f;
+        return;
+      }
+    }
+  }
+  function makeLUT() {
+    const N = 512, data = new Uint8Array(N * 4), c = [0, 0, 0];
+    for (let i = 0; i < N; i++) {
+      const tt = ST0 + (i / (N - 1)) * (LASTC - ST0);
+      rampEval(tt, c);
+      data[i * 4] = c[0]; data[i * 4 + 1] = c[1]; data[i * 4 + 2] = c[2]; data[i * 4 + 3] = 255;
+    }
+    const tex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, tex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, N, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, data);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    return tex;
+  }
+
+  // ---------- состояние ----------
+  let glyphs = [];
+  let capHBuild = GHREF * 0.7;
+  let baseUnitBuild = 22;
+  let Wd = 0, Hd = 0;
+  const slotX = [0.28, 0.44, 0.60, 0.74];
+  const afx = [0.51, 0.67, 0.44, 0.60], afy = [0.83, 0.55, 0.91, 0.66];
+  const phx = [0.0, 1.7, 3.1, 4.6], phy = [1.2, 2.9, 0.4, 5.1];
+  const SEP = 0.74, KSPRING = 5.0, BOUNCE = 3.2;
+  let simT = 0, lastNow = 0, inited = false;
+
+  // --- интерактивное пятно (курсор / палец) ---
+  const SPOT_R_FRAC = 0.33;          // радиус пятна относительно высоты капса (кончик пальца)
+  let DPR = 1;
+  let ptrTX = 0, ptrTY = 0;          // цель (device px, начало сверху-слева)
+  let ptrActive = false;             // курсор в окне / палец на экране
+  let spotX = 0, spotY = 0;          // сглаженная позиция (тянется за целью)
+  let spotAmt = 0;                   // сглаженная амплитуда появления
+  let spotInit = false;
+
+  // Высота, от которой считается РАЗМЕР букв. Тянется за Hd плавно, чтобы
+  // скачок высоты окна (панель iOS) не менял кегль мгновенно.
+  let sizeH = 0;
+
+  function buildGlyphs() {
+    const pad = Math.round(GHREF * 0.85);
+    const rBlur = Math.max(2, Math.round(GHREF * 0.035));
+    const baseFontPx = Math.round(GHREF * 1.2);
+    capHBuild = measureInkH('H', baseFontPx);
+    baseUnitBuild = capHBuild * 0.12;
+    glyphs = WORD.map((ch) => {
+      let fpx = baseFontPx;
+      const lower = ch === ch.toLowerCase() && ch !== ch.toUpperCase();
+      if (lower) { const h = measureInkH(ch, baseFontPx); fpx = Math.round(baseFontPx * capHBuild / Math.max(1, h)); }
+      const g = makeGlyph(ch, fpx, pad, rBlur);
+      g.tex = makeSDFTexture(g);
+      g.px = 0; g.py = 0; g.vx = 0; g.vy = 0;
+      return g;
+    });
+    // статические юниформы формы
+    const half = new Float32Array(8), tsz = new Float32Array(8);
+    for (let i = 0; i < 4; i++) {
+      half[i * 2] = glyphs[i].gw * 0.5; half[i * 2 + 1] = glyphs[i].gh * 0.5;
+      tsz[i * 2] = glyphs[i].gw; tsz[i * 2 + 1] = glyphs[i].gh;
+    }
+    gl.uniform2fv(U.uHalf, half);
+    gl.uniform2fv(U.uTexSize, tsz);
+    // привязка текстур
+    for (let i = 0; i < 4; i++) { gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, glyphs[i].tex); }
+    gl.activeTexture(gl.TEXTURE4); gl.bindTexture(gl.TEXTURE_2D, lutTex);
+  }
+
+  function initPositions() {
+    glyphs.forEach((g, i) => { g.px = Wd * slotX[i]; g.py = Hd * 0.5; g.vx = 0; g.vy = 0; });
+    inited = true;
+  }
+
+  const centerBuf = new Float32Array(8);
+
+  function physics(now) {
+    let dt = (now - lastNow) / 1000; lastNow = now;
+    if (!(dt > 0)) dt = 0.016; if (dt > 0.033) dt = 0.033;
+    simT += dt * P.speed;
+
+    // сглаживание пятна: позиция тянется за курсором, амплитуда плавно всплывает/гаснет
+    const kPos = 1 - Math.exp(-dt / 0.05);
+    spotX += (ptrTX - spotX) * kPos;
+    spotY += (ptrTY - spotY) * kPos;
+    const tauAmt = ptrActive ? 0.14 : 0.30;   // появляется быстрее, чем исчезает
+    const kAmt = 1 - Math.exp(-dt / tauAmt);
+    spotAmt += ((ptrActive ? 1 : 0) - spotAmt) * kAmt;
+    // плавно подтягиваем опорную высоту -> кегль меняется без скачка
+    if (sizeH <= 0) sizeH = Hd;
+    sizeH += (Hd - sizeH) * (1 - Math.exp(-dt / 0.40));
+    const uS = (TARGET_CAP_FRAC * sizeH * P.size) / capHBuild;
+    const ampX = Wd * 0.10, ampY = Hd * 0.22;
+    const dampF = Math.pow(0.9, dt * 60);
+
+    for (let i = 0; i < 4; i++) {
+      const g = glyphs[i];
+      const ax = Wd * slotX[i] + Math.sin(simT * afx[i] + phx[i]) * ampX;
+      const ay = Hd * 0.5 + Math.sin(simT * afy[i] + phy[i]) * ampY;
+      g.vx += (ax - g.px) * KSPRING * dt; g.vy += (ay - g.py) * KSPRING * dt;
+      g.vx *= dampF; g.vy *= dampF;
+      g.px += g.vx * dt; g.py += g.vy * dt;
+    }
+    for (let iter = 0; iter < 3; iter++) {
+      for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) {
+        const gi = glyphs[i], gj = glyphs[j];
+        const dx = gj.px - gi.px, dy = gj.py - gi.py;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        const minD = SEP * (gi.rad + gj.rad) * uS;
+        if (dist < minD && dist > 0.001) {
+          const nx = dx / dist, ny = dy / dist, overlap = minD - dist, push = overlap * 0.5;
+          gi.px -= nx * push; gi.py -= ny * push; gj.px += nx * push; gj.py += ny * push;
+          if (iter === 0) { const b = overlap * BOUNCE; gi.vx -= nx * b; gi.vy -= ny * b; gj.vx += nx * b; gj.vy += ny * b; }
+        }
+      }
+    }
+    for (let i = 0; i < 4; i++) {
+      const g = glyphs[i];
+      const hx = 0.5 * g.iw * uS + 4, hy = 0.5 * g.ih * uS + 4;
+      if (g.px < hx) { g.px = hx; if (g.vx < 0) g.vx *= -0.4; }
+      if (g.px > Wd - hx) { g.px = Wd - hx; if (g.vx > 0) g.vx *= -0.4; }
+      if (g.py < hy) { g.py = hy; if (g.vy < 0) g.vy *= -0.4; }
+      if (g.py > Hd - hy) { g.py = Hd - hy; if (g.vy > 0) g.vy *= -0.4; }
+      centerBuf[i * 2] = g.px; centerBuf[i * 2 + 1] = g.py;
+    }
+    return uS;
+  }
+
+  function render(now) {
+    if (!inited) { requestAnimationFrame(render); return; }
+    const uS = physics(now);
+    gl.uniform2fv(U.uCenter, centerBuf);
+    gl.uniform1f(U.uS, uS);
+    gl.uniform1f(U.uInvS, 1 / (baseUnitBuild * P.spread));
+    gl.uniform1f(U.uK, P.k);
+    gl.uniform1f(U.uBgAmp, P.bgAmp);
+    gl.uniform1f(U.uBgContrast, P.bgContrast);
+    gl.uniform1f(U.uCellSize, P.cellSize);
+    gl.uniform1f(U.uTime, now * 0.001);
+    gl.uniform2f(U.uSpotPos, spotX, spotY);
+    gl.uniform1f(U.uSpotR, SPOT_R_FRAC * TARGET_CAP_FRAC * (sizeH > 0 ? sizeH : Hd) * P.size);
+    gl.uniform1f(U.uSpotAmt, spotAmt);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    requestAnimationFrame(render);
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    DPR = dpr;
+    const oldW = Wd, oldH = Hd;
+    const newW = Math.round(window.innerWidth * dpr);
+    const newH = Math.round(window.innerHeight * dpr);
+    const dimsChanged = (newW !== oldW) || (newH !== oldH);
+    const mode = window.innerWidth >= window.innerHeight ? 'landscape' : 'portrait';
+    const modeChanged = mode !== curMode;
+
+    // Ничего не изменилось (iOS дёрнул resize от показа/скрытия панели без смены размера) —
+    // не трогаем буфер и позиции, иначе кадр мигнёт и буквы прыгнут к началу.
+    if (inited && !dimsChanged && !modeChanged) return;
+
+    Wd = newW; Hd = newH;
+    if (!spotInit) { spotX = ptrTX = Wd * 0.5; spotY = ptrTY = Hd * 0.5; spotInit = true; }
+    canvas.width = Wd; canvas.height = Hd;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    gl.viewport(0, 0, Wd, Hd);
+    gl.uniform2f(U.uRes, Wd, Hd);
+    if (modeChanged) { curMode = mode; applyPreset(mode); }
+
+    if (!inited || modeChanged) {
+      initPositions();                                  // первичная расстановка или поворот экрана
+    }
+    // При обычном изменении высоты/ширины (панель iOS) НЕ трогаем ни позиции,
+    // ни скорости, ни кегль: цели пружин уже пересчитаны от новых Wd/Hd, буквы
+    // сами доедут плавно, а размер подтянется через sizeH. Никаких скачков.
+  }
+
+  let rt = null;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 120); });
+
+  // Курсор на десктопе, палец на тач-устройствах. Слушаем на window, поэтому
+  // работает и над белой микрографикой/текстом (у HUD pointer-events: none).
+  function ptrMove(e) { ptrTX = e.clientX * DPR; ptrTY = e.clientY * DPR; ptrActive = true; }
+  window.addEventListener('pointermove', ptrMove, { passive: true });
+  window.addEventListener('pointerdown', ptrMove, { passive: true });
+  // палец убрали -> пятно гаснет; для мыши гасим только при уходе из окна
+  window.addEventListener('pointerup', (e) => { if (e.pointerType !== 'mouse') ptrActive = false; }, { passive: true });
+  window.addEventListener('pointercancel', () => { ptrActive = false; }, { passive: true });
+  document.addEventListener('mouseleave', () => { ptrActive = false; });
+  window.addEventListener('blur', () => { ptrActive = false; });
+
+  let lutTex = null;
+  let gradTex = null;
+  function uploadGrad(source) {
+    gradTex = gl.createTexture();
+    gl.activeTexture(gl.TEXTURE5);
+    gl.bindTexture(gl.TEXTURE_2D, gradTex);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, source);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+    gl.uniform1i(U.uGrad, 5);
+  }
+  function fallbackGrad() {
+    const cv = document.createElement('canvas'); cv.width = 64; cv.height = 36;
+    const cx = cv.getContext('2d');
+    const g = cx.createLinearGradient(0, 0, cv.width, cv.height);
+    g.addColorStop(0, '#8a8a90'); g.addColorStop(0.5, '#f0eef2'); g.addColorStop(1, '#e86fb0');
+    cx.fillStyle = g; cx.fillRect(0, 0, cv.width, cv.height);
+    uploadGrad(cv);
+  }
+  async function loadGrad() {
+    try {
+      const img = new Image();
+      img.decoding = 'async';
+      img.src = GRAD_SRC;
+      await img.decode();
+      uploadGrad(img);
+    } catch (e) { fallbackGrad(); }
+  }
+  document.body.style.background = 'rgb(' + HEAT_BG.join(',') + ')';
+
+  async function boot() {
+    try {
+      await Promise.race([
+        (document.fonts && document.fonts.load)
+          ? document.fonts.load('400 120px "Bagel Fat One"').then(() => document.fonts.ready)
+          : Promise.resolve(),
+        new Promise((r) => setTimeout(r, 2500)),
+      ]);
+    } catch (e) { /* fallback */ }
+    lutTex = makeLUT();
+    buildGlyphs();
+    await loadGrad();
+    resize();
+    requestAnimationFrame(render);
+  }
+  boot();
+})();
+
+  </script>
+
+<div class="hud" aria-hidden="true">
+
+  <div class="menu"><span tabindex="0">Portfolio</span><span tabindex="0">About</span><span tabindex="0">Process</span></div>
+
+  <div class="tc"><div class="eyebrow"><span class="lg">Wave &mdash; International Branding Studio</span><span class="sh">International Branding Studio</span></div></div>
+
+  <div class="tr"><div class="since">Since 2018</div></div>
+
+  <div class="scale"><svg viewBox="-26 0 86 400" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+  <defs><linearGradient id="gs" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#ffffff" stop-opacity="0.9"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+  </linearGradient></defs>
+  <rect x="7" y="6" width="12" height="40" fill="url(#gs)"/>
+  <text x="22" y="14" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="400" font-size="11" dominant-baseline="middle">0</text>
+  <line x1="20" y1="60" x2="20" y2="388" stroke="#fff" stroke-width="1.3" vector-effect="non-scaling-stroke"/>
+  <line x1="20" y1="60" x2="14" y2="60" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="76" x2="14" y2="76" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="92" x2="14" y2="92" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="108" x2="14" y2="108" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="124" x2="14" y2="124" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="140" x2="14" y2="140" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="156" x2="14" y2="156" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="172" x2="14" y2="172" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="188" x2="14" y2="188" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="204" x2="14" y2="204" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="220" x2="14" y2="220" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="236" x2="14" y2="236" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="252" x2="14" y2="252" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="268" x2="14" y2="268" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="284" x2="14" y2="284" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="300" x2="14" y2="300" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="316" x2="14" y2="316" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="332" x2="14" y2="332" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="348" x2="14" y2="348" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="364" x2="14" y2="364" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="380" x2="14" y2="380" stroke="#fff" stroke-width="1.1" vector-effect="non-scaling-stroke" opacity="0.75"/><line x1="20" y1="178" x2="7" y2="178" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke"/><text x="1" y="178" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="400" font-size="13" text-anchor="end" dominant-baseline="central">5</text><line x1="20" y1="330" x2="7" y2="330" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke"/><text x="1" y="330" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="400" font-size="13" text-anchor="end" dominant-baseline="central">10</text>
+  <path d="M2 132 L12 138 L2 144 Z" fill="#fff"/>
+</svg></div>
+
+  <div class="rightcol">
+    <div class="midR">
+      <span class="ic"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="46" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        <polyline points="22,50 38,50 45,33 55,67 62,50 78,50" fill="none" stroke="#fff" stroke-width="3.4" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg></span>
+      <span class="ic"><svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="50" cy="50" r="46" stroke="#fff" stroke-width="2" vector-effect="non-scaling-stroke"/>
+        <path d="M57 22 L34 53 L48 53 L43 78 L66 45 L52 45 Z" fill="#fff" stroke="#fff" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>
+      </svg></span>
+    </div>
+
+    <div class="notes">
+      <div class="ncol">
+        <div class="note">Strategic<br>Approach</div>
+        <div class="note">Experimental<br>Design</div>
+      </div>
+      <div class="ncol">
+        <div class="note">Visual<br>Identity</div>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="exp"><svg viewBox="0 0 463 60" xmlns="http://www.w3.org/2000/svg" aria-label="Experiential">
+  <path d="M 8.00 30.00 A 20 20 0 0 1 45.46 20.24 Q 46.50 22.40 47.54 20.24 A 20 20 0 0 1 82.46 20.24 Q 83.50 22.40 84.54 20.24 A 20 20 0 0 1 119.46 20.24 Q 120.50 22.40 121.54 20.24 A 20 20 0 0 1 156.46 20.24 Q 157.50 22.40 158.54 20.24 A 20 20 0 0 1 193.46 20.24 Q 194.50 22.40 195.54 20.24 A 20 20 0 0 1 230.46 20.24 Q 231.50 22.40 232.54 20.24 A 20 20 0 0 1 267.46 20.24 Q 268.50 22.40 269.54 20.24 A 20 20 0 0 1 304.46 20.24 Q 305.50 22.40 306.54 20.24 A 20 20 0 0 1 341.46 20.24 Q 342.50 22.40 343.54 20.24 A 20 20 0 0 1 378.46 20.24 Q 379.50 22.40 380.54 20.24 A 20 20 0 0 1 415.46 20.24 Q 416.50 22.40 417.54 20.24 A 20 20 0 0 1 455.00 30.00 A 20 20 0 0 1 417.54 39.76 Q 416.50 37.60 415.46 39.76 A 20 20 0 0 1 380.54 39.76 Q 379.50 37.60 378.46 39.76 A 20 20 0 0 1 343.54 39.76 Q 342.50 37.60 341.46 39.76 A 20 20 0 0 1 306.54 39.76 Q 305.50 37.60 304.46 39.76 A 20 20 0 0 1 269.54 39.76 Q 268.50 37.60 267.46 39.76 A 20 20 0 0 1 232.54 39.76 Q 231.50 37.60 230.46 39.76 A 20 20 0 0 1 195.54 39.76 Q 194.50 37.60 193.46 39.76 A 20 20 0 0 1 158.54 39.76 Q 157.50 37.60 156.46 39.76 A 20 20 0 0 1 121.54 39.76 Q 120.50 37.60 119.46 39.76 A 20 20 0 0 1 84.54 39.76 Q 83.50 37.60 82.46 39.76 A 20 20 0 0 1 47.54 39.76 Q 46.50 37.60 45.46 39.76 A 20 20 0 0 1 8.00 30.00 Z" fill="none" stroke="#fff" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+  <text x="28" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">E</text><text x="65" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">x</text><text x="102" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">p</text><text x="139" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">e</text><text x="176" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">r</text><text x="213" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">i</text><text x="250" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">e</text><text x="287" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">n</text><text x="324" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">t</text><text x="361" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">i</text><text x="398" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">a</text><text x="435" y="36.50" fill="#fff" font-family="Space Grotesk, sans-serif" font-weight="500" font-size="25" text-anchor="middle">l</text>
+</svg></div>
+    <div class="chain"><span class="w">Understanding</span><svg class="ar" viewBox="0 0 26 16" fill="none" aria-hidden="true"><path d="M2 8 H20 M15 3 L21 8 L15 13" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linecap="butt" stroke-linejoin="miter"/></svg><span class="w">Strategy</span><svg class="ar" viewBox="0 0 26 16" fill="none" aria-hidden="true"><path d="M2 8 H20 M15 3 L21 8 L15 13" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linecap="butt" stroke-linejoin="miter"/></svg><span class="w">Idea</span><svg class="ar" viewBox="0 0 26 16" fill="none" aria-hidden="true"><path d="M2 8 H20 M15 3 L21 8 L15 13" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linecap="butt" stroke-linejoin="miter"/></svg><span class="w">Identity</span><svg class="ar" viewBox="0 0 26 16" fill="none" aria-hidden="true"><path d="M2 8 H20 M15 3 L21 8 L15 13" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linecap="butt" stroke-linejoin="miter"/></svg><span class="w">Motion</span><svg class="ar" viewBox="0 0 26 16" fill="none" aria-hidden="true"><path d="M2 8 H20 M15 3 L21 8 L15 13" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linecap="butt" stroke-linejoin="miter"/></svg><span class="w">Technology</span></div>
+  </div>
+
+  <div class="sblock"><div class="slogan">Brands With a Pulse</div></div>
+
+</div>
+
+</body>
+</html>
