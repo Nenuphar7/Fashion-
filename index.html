@@ -22,6 +22,8 @@
   .kick{font-size:clamp(14px,1.6vw,20px);letter-spacing:.24em;text-transform:uppercase;color:var(--h-orange);font-weight:600;margin:0 0 clamp(14px,2.4vh,26px);}
   h1.big{font-family:var(--display);font-weight:500;line-height:1.04;margin:0;font-size:clamp(42px,6.6vw,96px);letter-spacing:-.01em;}
   h1.big em{font-style:normal;background:linear-gradient(96deg,var(--h-yellow),var(--h-orange) 42%,var(--h-magenta) 80%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  h1.big.nowrap{white-space:nowrap;font-size:clamp(34px,5vw,78px);}
+  @media (max-aspect-ratio: 1/1){h1.big.nowrap{white-space:normal;}}
   .subline{margin:clamp(16px,2.6vh,28px) 0 0;color:var(--ink-dim);font-size:clamp(22px,2.6vw,34px);max-width:40ch;line-height:1.4;}
 
   .items{list-style:none;margin:clamp(14px,2.6vh,26px) 0 0;padding:0;display:flex;flex-direction:column;gap:clamp(6px,1.1vh,11px);}
@@ -263,7 +265,7 @@ const S=[
  {t:'ice',hot:['content','clothes','carriers'],dim:[],zones:true,labels:'all',topnote:'Carriers — prints · silhouettes · collections · packaging · site · tags · socials · shoots · drops',caption:`A copied tip won’t hold — the <b>90% underneath</b> isn’t yours.`},
  {t:'ice',hot:['platform'],dim:[],zones:true,labels:'all',topnote:'Why you’ve never seen one',caption:`Platform = foundation. The <b>confidential</b> part of a brand.`},
  {t:'list',kick:'A full brand strategy — the platform is one section',h:'It structures everything else.',items:[{n:'01',tt:'Company'},{n:'02',tt:'Audience research'},{n:'03',tt:'Brand platform',hot:true},{n:'04',tt:'Creative concept'},{n:'05',tt:'Tone of communication'},{n:'06',tt:'Visual guidelines'}],note:'The <b>foundation.</b> It structures everything above it.'},
- {t:'stmt',kick:'A real example',h:`A dress brand: <em>Russia → US.</em>`},
+ {t:'stmt',kick:'A real example',nowrap:true,h:`A dress brand: <em>Russia&nbsp;→&nbsp;US.</em>`},
  {t:'link',kick:'Now — a real brand platform',h:'Let’s open one.',links:[{label:'Client brand platform',url:PLATFORM_URL}]},
  {t:'list',kick:'Your turn — the first piece of yours',h:'Your brand, four moves.',items:[{n:'1',tt:'Audience segments',s:'circle your core'},{n:'2',tt:'Persona',s:'your core as one real person'},{n:'3',tt:'Insight',s:'“I want ___, but ___, so I ___”'},{n:'4',tt:'Message',s:'“We ___” — the answer to the insight'}]},
  {t:'link',kick:'And the visual style',h:'How it becomes a look.',links:[{label:'Visual identity concept',url:VISUAL_URL}]},
@@ -273,7 +275,7 @@ const S=[
 const stage=document.getElementById('stage');let i=0;
 function chrome(idx){return `<div class="eyebrow">The Fashion Founder\u2019s Blind Spot</div><div class="wavemark">wave</div><div class="counter">${String(idx+1).padStart(2,'0')} / ${String(S.length).padStart(2,'0')}</div>`;}
 function title(s){return `<div class="wrap"><p class="kick">${s.kick}</p><h1 class="big">${s.h}</h1>${s.sub?`<p class="subline">${s.sub}</p>`:''}${s.qs?`<div class="qs">${s.qs.map(q=>`<div>${q}</div>`).join('')}</div>`:''}</div>`;}
-function stmt(s){const inner=`${s.kick?`<p class="kick">${s.kick}</p>`:''}<h1 class="big">${s.h}</h1>${s.sub?`<p class="subline">${s.sub}</p>`:''}`;return s.img?`<div class="wrap"><div class="row2"><img class="headimg" src="${s.img}" alt=""><div class="txt">${inner}</div></div></div>`:`<div class="wrap">${inner}</div>`;}
+function stmt(s){const inner=`${s.kick?`<p class="kick">${s.kick}</p>`:''}<h1 class="big${s.nowrap?' nowrap':''}">${s.h}</h1>${s.sub?`<p class="subline">${s.sub}</p>`:''}`;return s.img?`<div class="wrap"><div class="row2"><img class="headimg" src="${s.img}" alt=""><div class="txt">${inner}</div></div></div>`:`<div class="wrap">${inner}</div>`;}
 function list(s){const li=s.items.map(it=>`<li class="${it.hot?'hot':''}">${it.n?`<span class="n">${it.n}</span>`:''}<span class="t">${it.tt}${it.s?`<span class="s">${it.s}</span>`:''}</span></li>`).join('');return `<div class="wrap">${s.kick?`<p class="kick">${s.kick}</p>`:''}<h1 class="big">${s.h}</h1><ul class="items">${li}</ul>${s.note?`<p class="note">${s.note}</p>`:''}</div>`;}
 function flow(s){const ch=s.items.map((x,k)=>`${k?'<span class="sep">→</span>':''}<span class="chip">${s.icons?`<span class="cicon">${s.icons[k]}</span>`:''}${x}</span>`).join('');return `<div class="wrap"><p class="kick">${s.kick}</p><div class="flow">${ch}</div>${s.note?`<p class="note">${s.note}</p>`:''}${s.bigq?`<div class="bigq">${s.bigq}</div>`:''}</div>`;}
 function channels(){return `<div class="wrap"><p class="kick">Where the money goes</p><h1 class="big">Channels only <em>carry</em> the brand.</h1><div class="chan"><div class="b">Brand<span>the substance</span></div><span class="sep">→</span><div class="b">Channels<span>SMM · ads · marketing</span></div><span class="sep">→</span><div class="chanhead"><img src="${HEAD}" alt="Buyer"/></div></div><div class="contrast"><div class="bad">Nothing to carry = wasted budget</div><div class="good">A formed brand = ads that actually work</div></div></div>`;}
