@@ -1,0 +1,405 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>Dresses — Brand Platform</title>
+<meta name="description" content="Brand platform for Dresses — a womenswear brand. English edition."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root{
+    --purple:#73009d; --purple-2:#8a13bb; --cyan:#10e8c8; --magenta:#b3197f;
+    --ink:#16121a; --ink-dim:#5b5563; --paper:#ffffff; --line:rgba(0,0,0,.12);
+    --disp:"Archivo",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;height:100%;background:#0c0c10;color:var(--ink);
+    font-family:var(--body);overflow:hidden;user-select:none;-webkit-user-select:none;
+    touch-action:none;overscroll-behavior:none;}
+  #stage{position:fixed;inset:0;z-index:1;}
+  .slide{position:absolute;inset:0;opacity:0;visibility:hidden;transition:opacity .4s ease;
+    display:flex;align-items:center;justify-content:center;overflow:hidden;}
+  .slide.active{opacity:1;visibility:visible;}
+  .pad{padding:clamp(26px,5vw,96px);width:100%;height:100%;display:flex;align-items:center;}
+  /* backgrounds */
+  .bg-paper{background:var(--paper);color:var(--ink);}
+  .bg-purple{background:var(--purple);color:#fff;
+    background-image:radial-gradient(120% 120% at 15% 10%,var(--purple-2),var(--purple) 60%);}
+  .bg-dark{background:#141018;color:#fff;}
+  .bg-img{background:#0c0c10;}
+  .bg-img .imgfill{position:absolute;inset:0;background-size:cover;background-position:center;}
+  .bg-img .veil{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.18),rgba(0,0,0,.05) 30%,rgba(0,0,0,.55));}
+  /* chrome */
+  .eyebrow{position:absolute;top:clamp(16px,3.2vh,30px);left:clamp(20px,3.4vw,44px);
+    font-size:clamp(11px,1.2vw,14px);letter-spacing:.24em;text-transform:uppercase;
+    font-weight:600;z-index:5;color:var(--ink-dim);}
+  .mark{position:absolute;bottom:clamp(14px,2.8vh,26px);left:clamp(20px,3.4vw,44px);
+    font-family:var(--disp);font-weight:800;letter-spacing:.02em;font-size:clamp(15px,1.7vw,20px);
+    z-index:5;color:var(--purple);}
+  .counter{position:absolute;bottom:clamp(14px,2.8vh,26px);right:clamp(20px,3.4vw,44px);
+    font-size:clamp(11px,1.1vw,14px);letter-spacing:.18em;z-index:5;color:var(--ink-dim);
+    font-variant-numeric:tabular-nums;}
+  .on-dark .eyebrow,.on-dark .counter{color:rgba(255,255,255,.62);}
+  .on-dark .mark{color:var(--cyan);}
+  /* type */
+  .wrap{width:min(92vw,1180px);margin:0 auto;}
+  .kick{font-family:var(--disp);font-weight:700;font-size:clamp(12px,1.4vw,17px);
+    letter-spacing:.22em;text-transform:uppercase;color:var(--cyan);margin:0 0 clamp(14px,2.2vh,24px);}
+  .bg-paper .kick{color:var(--purple);}
+  h1.big{font-family:var(--disp);font-weight:800;line-height:1;margin:0;letter-spacing:-.015em;
+    font-size:clamp(40px,7vw,104px);text-transform:none;}
+  h1.mid{font-family:var(--disp);font-weight:800;line-height:1.02;margin:0 0 clamp(18px,2.6vh,30px);
+    font-size:clamp(30px,4.4vw,60px);letter-spacing:-.01em;}
+  .divsub{font-family:var(--disp);font-weight:600;font-size:clamp(13px,1.5vw,18px);
+    letter-spacing:.16em;text-transform:uppercase;margin:clamp(16px,2.4vh,26px) 0 0;color:var(--cyan);opacity:.9;}
+  .lede{font-size:clamp(18px,2.2vw,30px);line-height:1.4;max-width:24ch;margin:clamp(18px,2.6vh,30px) 0 0;color:#fff;font-weight:500;}
+  .bg-paper .lede{color:var(--ink);}
+  /* bullet list */
+  ul.items{list-style:none;margin:clamp(10px,2vh,22px) 0 0;padding:0;
+    display:flex;flex-direction:column;gap:clamp(8px,1.3vh,14px);max-width:30ch;}
+  ul.items li{display:flex;gap:16px;align-items:baseline;
+    font-family:var(--disp);font-weight:600;font-size:clamp(20px,2.5vw,34px);line-height:1.15;}
+  ul.items li::before{content:"";flex:none;width:.5em;height:.5em;margin-top:.35em;border-radius:2px;
+    background:var(--cyan);transform:rotate(45deg);}
+  .bg-paper ul.items li::before{background:var(--purple);}
+  ul.items li .s{display:block;font-family:var(--body);font-weight:400;
+    font-size:clamp(14px,1.5vw,18px);color:var(--ink-dim);margin-top:4px;}
+  /* two-column with photo */
+  .row2{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(24px,4vw,64px);align-items:center;width:100%;}
+  .row2.rev{grid-template-columns:1fr 1.05fr;}
+  .photo{width:100%;aspect-ratio:3/2.05;border-radius:14px;background-size:cover;background-position:center;
+    box-shadow:0 24px 60px rgba(0,0,0,.18);}
+  .photo.portraitwide{aspect-ratio:16/10;}
+  .pname{font-family:var(--disp);font-weight:800;font-size:clamp(22px,2.6vw,34px);margin:0 0 6px;}
+  .pmeta{color:var(--ink-dim);font-size:clamp(14px,1.5vw,18px);margin:0 0 clamp(14px,2vh,20px);}
+  .ptext p{font-size:clamp(14px,1.5vw,18px);line-height:1.5;margin:0 0 .7em;color:#2a2530;max-width:38ch;}
+  /* statement */
+  .stmt-lines p{font-family:var(--disp);font-weight:600;line-height:1.25;margin:0 0 .5em;
+    font-size:clamp(20px,2.8vw,40px);max-width:24ch;}
+  .bg-dark .stmt-lines p{max-width:30ch;font-weight:500;font-size:clamp(18px,2.3vw,32px);color:rgba(255,255,255,.92);}
+  .stmt-lines em{font-style:normal;color:var(--cyan);}
+  .bg-purple .stmt-lines em,.bg-purple .msg{color:var(--cyan);}
+  .msg{font-family:var(--disp);font-weight:600;font-size:clamp(20px,2.8vw,42px);line-height:1.25;
+    max-width:22ch;margin:0;}
+  /* market map */
+  .mapwrap{position:relative;width:min(92vw,1180px);aspect-ratio:16/9;margin:0 auto;
+    border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 20px 50px rgba(0,0,0,.28);}
+  .mapwrap .mapimg{position:absolute;inset:0;background-size:cover;background-position:center;}
+  .axlbl{position:absolute;font-family:var(--disp);font-weight:800;letter-spacing:.14em;
+    text-transform:uppercase;font-size:clamp(11px,1.35vw,17px);color:var(--cyan);
+    background:#fff;padding:3px 10px;border-radius:20px;white-space:nowrap;}
+  .axlbl.top{top:4.5%;left:50%;transform:translateX(-50%);}
+  .axlbl.bottom{bottom:4.5%;left:50%;transform:translateX(-50%);}
+  .axlbl.left{left:1.5%;top:50%;transform:translateY(-50%);}
+  .axlbl.right{right:1.5%;top:50%;transform:translateY(-50%);}
+  /* venn */
+  .vennrow{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(24px,4vw,56px);align-items:center;width:100%;}
+  .venn{position:relative;width:100%;aspect-ratio:1.55/1;}
+  .ell{position:absolute;top:50%;width:60%;aspect-ratio:1.35/1;transform:translateY(-50%);
+    border-radius:50%;background:var(--cyan);display:flex;align-items:center;padding:4% 5%;
+    font-size:clamp(11px,1.15vw,15px);line-height:1.25;color:#0c3c37;font-weight:500;}
+  .ell.l{left:0;justify-content:flex-start;text-align:left;}
+  .ell.r{right:0;justify-content:flex-end;text-align:right;}
+  .ell.l span{max-width:58%;} .ell.r span{max-width:58%;}
+  .core{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    width:34%;aspect-ratio:1/1;border-radius:50%;background:var(--magenta);z-index:3;
+    display:flex;align-items:center;justify-content:center;text-align:center;padding:6%;
+    color:#fff;font-weight:600;font-size:clamp(11px,1.15vw,15px);line-height:1.25;
+    box-shadow:0 10px 30px rgba(179,25,127,.35);}
+  .venntext p{font-size:clamp(14px,1.55vw,19px);line-height:1.5;margin:0 0 .8em;color:#2a2530;max-width:34ch;}
+  .venntext p.big{font-family:var(--disp);font-weight:700;font-size:clamp(17px,1.9vw,24px);color:var(--ink);}
+  /* image slide caption chip */
+  .imgtag{position:absolute;left:clamp(22px,3.6vw,52px);bottom:clamp(56px,8vh,90px);z-index:4;}
+  .imgtag .kick{color:var(--cyan);margin:0 0 6px;}
+  .imgtag h2{font-family:var(--disp);font-weight:800;color:#fff;margin:0;line-height:1.02;
+    font-size:clamp(28px,4vw,56px);letter-spacing:-.01em;text-shadow:0 4px 24px rgba(0,0,0,.5);}
+  .imgtag p{color:rgba(255,255,255,.9);font-size:clamp(13px,1.5vw,18px);max-width:40ch;
+    margin:12px 0 0;line-height:1.45;text-shadow:0 2px 12px rgba(0,0,0,.6);}
+  /* image caption bar (covers baked-in labels) */
+  .slide.hasbar .imgfill{height:62%;background-position:center top;}
+  .capbar{position:absolute;left:0;right:0;bottom:0;height:38%;z-index:4;background:var(--purple);
+    background-image:radial-gradient(120% 160% at 12% 0%,var(--purple-2),var(--purple) 62%);
+    display:flex;align-items:center;padding:clamp(24px,4vw,64px);padding-bottom:clamp(52px,8vh,84px);}
+  .capbar .kick{color:var(--cyan);margin:0 0 6px;}
+  .capbar h2{font-family:var(--disp);font-weight:800;color:#fff;margin:0;line-height:1;
+    font-size:clamp(30px,4.4vw,64px);letter-spacing:-.01em;}
+  /* influencers */
+  .infgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(12px,1.6vw,22px);}
+  .infcard{margin:0;}
+  .infimg{width:100%;aspect-ratio:1/1;border-radius:12px;background-size:cover;background-position:center;
+    box-shadow:0 14px 34px rgba(0,0,0,.16);}
+  .infcard figcaption{margin-top:10px;font-family:var(--disp);font-weight:700;
+    font-size:clamp(12px,1.25vw,16px);line-height:1.2;}
+  @media (max-aspect-ratio:1/1){ .infgrid{grid-template-columns:repeat(2,1fr);} }
+  /* nav */
+  .nav{position:fixed;top:0;height:100%;width:22%;z-index:6;cursor:pointer;background:transparent;border:0;}
+  .nav.prev{left:0;} .nav.next{right:0;}
+  .nav:focus{outline:none;}
+  #help{position:fixed;bottom:clamp(14px,2.8vh,26px);left:50%;transform:translateX(-50%);
+    z-index:7;font-size:12px;letter-spacing:.12em;color:rgba(120,120,130,.9);
+    transition:opacity .5s;pointer-events:none;text-transform:uppercase;}
+  .on-dark #help{color:rgba(255,255,255,.5);}
+  #help.dim{opacity:0;}
+  @media (max-aspect-ratio:1/1){
+    .row2,.row2.rev,.vennrow{grid-template-columns:1fr;gap:22px;}
+    .photo{aspect-ratio:3/2;}
+    .venn{max-width:520px;margin:0 auto;}
+    ul.items,.stmt-lines p,.msg,.lede{max-width:100%;}
+  }
+</style></head>
+<body>
+<div id="stage"></div>
+<button class="nav prev" aria-label="Previous"></button>
+<button class="nav next" aria-label="Next"></button>
+<div id="help">← → to move · F for fullscreen</div>
+<script>
+const IMG='img/';
+const S=[
+  {t:'title'},
+  {t:'bullets', kick:'Brand assets', h:'What the brand is built on.',
+   items:['Focus on a single category — dresses','Purposeful shopping','A range of colours and textures',
+          'Patterns as works of art','Confidence in the fit before trying on',
+          'Keep wearing it as your body changes','Adaptability']},
+  {t:'divider', kick:'01', h:'Competitors', sub:'The field we play in'},
+  {t:'image', src:'competitors-4.jpg'},
+  {t:'image', src:'competitors-5.jpg'},
+  {t:'image', src:'competitors-6.jpg'},
+  {t:'image', src:'competitors-7.jpg'},
+  {t:'image', src:'competitors-8.jpg'},
+  {t:'image', src:'competitors-9.jpg'},
+  {t:'image', src:'competitors-10.jpg'},
+  {t:'image', src:'competitors-11.jpg'},
+  {t:'divider', kick:'02', h:'Market map', sub:'Where everyone sits'},
+  {t:'map'},
+  {t:'divider', kick:'03', h:'Target audience', sub:'Who we design for'},
+  {t:'venn'},
+  {t:'persona'},
+  {t:'secondary', src:'sec-mothers.jpg', label:'Secondary audience',
+   name:'Progressive modern mothers',
+   text:'Women aged 27–35 preparing for motherhood or recently become mothers. They know self-care matters and look for ways to make time and energy for their own needs — taking courses and studying time-management to fit in everything that counts.'},
+  {t:'secondary', src:'sec-nomads.jpg', label:'Secondary audience',
+   name:'Mature nomads',
+   text:'Coaches, psychologists, practitioners and online educators aged 42–60 who treat travel as a way of life and work online. They lead a broad audience by personal example — proof that you can stay active, energetic and joyful at any age.'},
+  {t:'image', src:'visual-world.jpg', bar:{kick:'The core audience', title:'Her visual world'}},
+  {t:'stmt', bg:'bg-dark', kick:'Audience insight', lines:[
+    'I’ve built a career and a family — both take most of my time, and both give me energy.',
+    'I want to show the world I’m not only a professional and a good mother, but a <em>beautiful, interesting, vibrant woman.</em>',
+    'And I’m not willing to trade my comfort, convenience or time to do it.']},
+  {t:'message'},
+  {t:'bullets', kick:'Reasons to believe', h:'Why it holds up.',
+   items:['High-tech materials','Adaptive and oversized cuts','A storage bag with every dress',
+          'Fit proven on non-standard body types']},
+  {t:'photoList', kick:'Brand personality', src:'personality.jpg',
+   items:['Bold','Creative','Independent','Joyful']},
+  {t:'rolemodel'},
+  {t:'influencers'},
+  {t:'image', src:'magazines.jpg', tag:{kick:'Where she’s seen', title:'The press'}},
+  {t:'bullets', kick:'Brand values', h:'What we stand for.',
+   items:['Freedom','Independence','Individuality','Femininity']},
+  {t:'closing'},
+];
+
+const stage=document.getElementById('stage');
+let i=0;
+const N=S.length;
+const pad=n=>String(n).padStart(2,'0');
+
+function chrome(idx){
+  return `<div class="eyebrow">Dresses · Brand platform</div>`+
+         `<div class="mark">wave</div>`+
+         `<div class="counter">${pad(idx+1)} / ${pad(N)}</div>`;
+}
+
+function elFor(s){
+  const el=document.createElement('div');
+  el.className='slide';
+  switch(s.t){
+    case 'title': el.classList.add('bg-purple','on-dark'); el.innerHTML=titleHTML(); break;
+    case 'divider': el.classList.add('bg-purple','on-dark'); el.innerHTML=dividerHTML(s); break;
+    case 'bullets': el.classList.add('bg-paper'); el.innerHTML=bulletsHTML(s); break;
+    case 'map': el.classList.add('bg-paper'); el.innerHTML=mapHTML(); break;
+    case 'venn': el.classList.add('bg-paper'); el.innerHTML=vennHTML(); break;
+    case 'persona': el.classList.add('bg-paper'); el.innerHTML=personaHTML(); break;
+    case 'secondary': el.classList.add('bg-paper'); el.innerHTML=secondaryHTML(s); break;
+    case 'stmt': el.classList.add(s.bg||'bg-paper'); if((s.bg||'')!=='bg-paper')el.classList.add('on-dark'); el.innerHTML=stmtHTML(s); break;
+    case 'message': el.classList.add('bg-purple','on-dark'); el.innerHTML=messageHTML(); break;
+    case 'photoList': el.classList.add('bg-paper'); el.innerHTML=photoListHTML(s); break;
+    case 'rolemodel': el.classList.add('bg-paper'); el.innerHTML=roleModelHTML(); break;
+    case 'influencers': el.classList.add('bg-paper'); el.innerHTML=influencersHTML(); break;
+    case 'image': el.classList.add('bg-img','on-dark'); if(s.bar)el.classList.add('hasbar'); el.innerHTML=imageHTML(s); break;
+    case 'closing': el.classList.add('bg-purple','on-dark'); el.innerHTML=closingHTML(); break;
+    default: el.classList.add('bg-paper'); el.innerHTML='';
+  }
+  // chrome for non-image slides always; image slides get counter/mark too but lighter
+  el.insertAdjacentHTML('beforeend', chrome(i));
+  return el;
+}
+
+function titleHTML(){
+  return `<div class="pad"><div class="wrap">
+    <h1 class="big" style="color:var(--cyan)">Dresses</h1>
+    <p class="divsub">Brand platform · English edition</p>
+    <p class="lede">A womenswear brand that brings more colour and emotion into everyday life.</p>
+  </div></div>`;
+}
+function dividerHTML(s){
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">${s.kick||''}</p>
+    <h1 class="big">${s.h}</h1>
+    ${s.sub?`<p class="divsub">${s.sub}</p>`:''}
+  </div></div>`;
+}
+function bulletsHTML(s){
+  const li=s.items.map(x=>`<li>${x}</li>`).join('');
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">${s.kick}</p>
+    <h1 class="mid">${s.h}</h1>
+    <ul class="items">${li}</ul>
+  </div></div>`;
+}
+function mapHTML(){
+  return `<div class="pad"><div class="wrap">
+    <p class="kick" style="text-align:center">Market map</p>
+    <div class="mapwrap">
+      <div class="mapimg" style="background-image:url('${IMG}marketmap.jpg')"></div>
+      <span class="axlbl top">Premium</span>
+      <span class="axlbl bottom">Affordable</span>
+      <span class="axlbl left">Pretentious</span>
+      <span class="axlbl right">Original</span>
+    </div>
+  </div></div>`;
+}
+function vennHTML(){
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">Target audience</p>
+    <div class="vennrow">
+      <div class="venn">
+        <div class="ell l"><span>Online entrepreneurs, bloggers, psychologists, retreat facilitators, active travellers</span></div>
+        <div class="ell r"><span>Progressive, active mothers and mothers-to-be</span></div>
+        <div class="core">Business owners, senior &amp; middle management, successful self-employed women</div>
+      </div>
+      <div class="venntext">
+        <p class="big">Independent, responsible women aged 28–55, driven by what they do and career-oriented.</p>
+        <p>They support themselves and earn a mid-to-high income. They live in major cities and travel often.</p>
+        <p>They know who they are, what they do, and what they want.</p>
+      </div>
+    </div>
+  </div></div>`;
+}
+function personaHTML(){
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">Core audience · persona</p>
+    <div class="row2">
+      <div class="photo" style="background-image:url('${IMG}persona-irina.jpg')"></div>
+      <div class="ptext">
+        <p class="pname">Irina, 40</p>
+        <p class="pmeta">Moscow · owner of a private clinic · married · mother of two</p>
+        <p>She spends a lot of time at work and tries to spend more with her children, with a nanny’s help.</p>
+        <p>She also wants to look after herself and make room for her husband, home, friends and parents.</p>
+        <p>Photography is her hobby, but she rarely finds the time. She wants to get out more — exhibitions, festivals, a break from routine — but isn’t sure how to stand out and feel at home in those rooms.</p>
+      </div>
+    </div>
+  </div></div>`;
+}
+function secondaryHTML(s){
+  return `<div class="pad"><div class="wrap">
+    <div class="photo portraitwide" style="background-image:url('${IMG}${s.src}');aspect-ratio:16/6.2;margin-bottom:clamp(18px,3vh,32px)"></div>
+    <p class="kick">${s.label}</p>
+    <h1 class="mid" style="margin-bottom:12px">${s.name}</h1>
+    <p style="font-size:clamp(15px,1.6vw,20px);line-height:1.5;max-width:56ch;color:#2a2530;margin:0">${s.text}</p>
+  </div></div>`;
+}
+function stmtHTML(s){
+  const lines=s.lines.map(l=>`<p>${l}</p>`).join('');
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">${s.kick}</p>
+    <div class="stmt-lines">${lines}</div>
+  </div></div>`;
+}
+function messageHTML(){
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">Brand message</p>
+    <p class="msg">Bold, stylish dresses that never restrict movement, are easy to care for and easy to travel with.</p>
+    <p class="msg" style="margin-top:clamp(16px,2.4vh,26px);color:#fff;opacity:.92;font-weight:500;font-size:clamp(17px,2.1vw,30px)">They adapt to your body — so you don’t adapt your body to the dress, or worry about the fit.</p>
+  </div></div>`;
+}
+function photoListHTML(s){
+  const li=s.items.map(x=>`<li>${x}</li>`).join('');
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">${s.kick}</p>
+    <div class="row2 rev">
+      <div><ul class="items" style="margin-top:6px">${li}</ul></div>
+      <div class="photo" style="background-image:url('${IMG}${s.src}')"></div>
+    </div>
+  </div></div>`;
+}
+function roleModelHTML(){
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">Brand role model</p>
+    <div class="row2">
+      <div class="photo" style="background-image:url('${IMG}rolemodel.jpg')"></div>
+      <div class="ptext">
+        <p class="pname">The expert mentor</p>
+        <p style="font-size:clamp(15px,1.7vw,21px);line-height:1.5;max-width:34ch;color:#2a2530">A guide to the world of fashion who knows how to balance family, work and self-expression — helping every part of a full, active life coexist.</p>
+      </div>
+    </div>
+  </div></div>`;
+}
+function influencersHTML(){
+  const people=[
+    ['inf-mogilko.jpg','Marina Mogilko'],
+    ['inf-kazantseva.jpg','Asya Kazantseva'],
+    ['inf-sartan.jpg','Anastasia Sartan'],
+    ['inf-abramovic.jpg','Marina Abramović'],
+    ['inf-litvinova.jpg','Renata Litvinova'],
+  ];
+  const cards=people.map(p=>`<figure class="infcard"><div class="infimg" style="background-image:url('${IMG}${p[0]}')"></div><figcaption>${p[1]}</figcaption></figure>`).join('');
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">Brand faces · influencers</p>
+    <h1 class="mid" style="margin-bottom:clamp(16px,2.6vh,28px)">The women who speak to her.</h1>
+    <div class="infgrid">${cards}</div>
+    <p style="margin:clamp(14px,2.2vh,22px) 0 0;color:var(--ink-dim);font-size:clamp(13px,1.45vw,17px)">Also referenced: Alexandra Mitroshina.</p>
+  </div></div>`;
+}
+function imageHTML(s){
+  const tag=s.tag?`<div class="imgtag"><p class="kick">${s.tag.kick}</p><h2>${s.tag.title}</h2>${s.tag.sub?`<p>${s.tag.sub}</p>`:''}</div>`:'';
+  const bar=s.bar?`<div class="capbar"><div class="wrap"><p class="kick">${s.bar.kick}</p><h2>${s.bar.title}</h2></div></div>`:'';
+  const veil=s.bar?'':'<div class="veil"></div>';
+  return `<div class="imgfill" style="background-image:url('${IMG}${s.src}')"></div>${veil}${tag}${bar}`;
+}
+function closingHTML(){
+  return `<div class="pad"><div class="wrap">
+    <p class="kick">Positioning concept</p>
+    <h1 class="mid" style="max-width:20ch">Dresses that bring more colour and emotion into life —</h1>
+    <p class="msg" style="color:var(--cyan)">making it richer, more vibrant, and uniquely your own.</p>
+  </div></div>`;
+}
+
+function render(){
+  if(i<0)i=0; if(i>=N)i=N-1;
+  const el=elFor(S[i]);
+  stage.innerHTML='';
+  stage.appendChild(el);
+  requestAnimationFrame(()=>el.classList.add('active'));
+}
+function go(d){ i+=d; render(); flash(); }
+
+document.querySelector('.nav.next').onclick=()=>go(1);
+document.querySelector('.nav.prev').onclick=()=>go(-1);
+addEventListener('keydown',e=>{
+  const k=e.key.toLowerCase();
+  if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(1);}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(-1);}
+  else if(k==='f'){ if(!document.fullscreenElement)document.documentElement.requestFullscreen?.(); else document.exitFullscreen?.(); }
+});
+// touch swipe
+let sx=0,sy=0;
+addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});
+addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+  if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy))go(dx<0?1:-1);},{passive:true});
+
+let ht;
+function flash(){const h=document.getElementById('help');h.classList.remove('dim');clearTimeout(ht);ht=setTimeout(()=>h.classList.add('dim'),2600);}
+render();flash();
+</script>
+</body></html>
