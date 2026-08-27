@@ -2,7 +2,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>Dresses — Brand Platform</title>
-<meta name="description" content="Brand platform for Dresses — a womenswear brand. English edition."/>
+<meta name="description" content="Brand platform for Dresses — a womenswear brand."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
@@ -50,6 +50,11 @@
     font-size:clamp(40px,7vw,104px);text-transform:none;}
   h1.mid{font-family:var(--disp);font-weight:800;line-height:1.02;margin:0 0 clamp(18px,2.6vh,30px);
     font-size:clamp(30px,4.4vw,60px);letter-spacing:-.01em;}
+  h1.sect{font-family:var(--disp);font-weight:800;line-height:1;letter-spacing:-.015em;
+    font-size:clamp(34px,5.4vw,82px);margin:0 0 clamp(16px,2.6vh,30px);text-transform:none;color:var(--ink);}
+  .on-dark h1.sect,.bg-purple h1.sect{color:#fff;}
+  h2.subhead{font-family:var(--disp);font-weight:700;font-size:clamp(20px,2.4vw,32px);
+    line-height:1.1;margin:0 0 12px;color:var(--purple);}
   .divsub{font-family:var(--disp);font-weight:600;font-size:clamp(13px,1.5vw,18px);
     letter-spacing:.16em;text-transform:uppercase;margin:clamp(16px,2.4vh,26px) 0 0;color:var(--cyan);opacity:.9;}
   .lede{font-size:clamp(18px,2.2vw,30px);line-height:1.4;max-width:24ch;margin:clamp(18px,2.6vh,30px) 0 0;color:#fff;font-weight:500;}
@@ -153,10 +158,10 @@
 <button class="nav next" aria-label="Next"></button>
 <div id="help">← → to move · F for fullscreen</div>
 <script>
-const IMG='img/';
+const IMG='/dresses/img/';
 const S=[
   {t:'title'},
-  {t:'bullets', kick:'Brand assets', h:'What the brand is built on.',
+  {t:'bullets', title:'Brand Assets',
    items:['Focus on a single category — dresses','Purposeful shopping','A range of colours and textures',
           'Patterns as works of art','Confidence in the fit before trying on',
           'Keep wearing it as your body changes','Adaptability']},
@@ -180,21 +185,21 @@ const S=[
   {t:'secondary', src:'sec-nomads.jpg', label:'Secondary audience',
    name:'Mature nomads',
    text:'Coaches, psychologists, practitioners and online educators aged 42–60 who treat travel as a way of life and work online. They lead a broad audience by personal example — proof that you can stay active, energetic and joyful at any age.'},
-  {t:'image', src:'visual-world.jpg', bar:{kick:'The core audience', title:'Her visual world'}},
-  {t:'stmt', bg:'bg-dark', kick:'Audience insight', lines:[
+  {t:'image', src:'visual-world.jpg', bar:{kick:'The core audience', title:'Visual World'}},
+  {t:'stmt', bg:'bg-dark', title:'Audience Insight', lines:[
     'I’ve built a career and a family — both take most of my time, and both give me energy.',
     'I want to show the world I’m not only a professional and a good mother, but a <em>beautiful, interesting, vibrant woman.</em>',
     'And I’m not willing to trade my comfort, convenience or time to do it.']},
   {t:'message'},
-  {t:'bullets', kick:'Reasons to believe', h:'Why it holds up.',
+  {t:'bullets', title:'Reasons to Believe',
    items:['High-tech materials','Adaptive and oversized cuts','A storage bag with every dress',
           'Fit proven on non-standard body types']},
-  {t:'photoList', kick:'Brand personality', src:'personality.jpg',
+  {t:'photoList', title:'Brand Personality', src:'personality.jpg',
    items:['Bold','Creative','Independent','Joyful']},
   {t:'rolemodel'},
   {t:'influencers'},
   {t:'image', src:'magazines.jpg', tag:{kick:'Where she’s seen', title:'The press'}},
-  {t:'bullets', kick:'Brand values', h:'What we stand for.',
+  {t:'bullets', title:'Brand Values',
    items:['Freedom','Independence','Individuality','Femininity']},
   {t:'closing'},
 ];
@@ -238,7 +243,7 @@ function elFor(s){
 function titleHTML(){
   return `<div class="pad"><div class="wrap">
     <h1 class="big" style="color:var(--cyan)">Dresses</h1>
-    <p class="divsub">Brand platform · English edition</p>
+    <p class="divsub" style="font-size:clamp(16px,2vw,28px)">Brand Platform</p>
     <p class="lede">A womenswear brand that brings more colour and emotion into everyday life.</p>
   </div></div>`;
 }
@@ -252,14 +257,13 @@ function dividerHTML(s){
 function bulletsHTML(s){
   const li=s.items.map(x=>`<li>${x}</li>`).join('');
   return `<div class="pad"><div class="wrap">
-    <p class="kick">${s.kick}</p>
-    <h1 class="mid">${s.h}</h1>
+    <h1 class="sect">${s.title}</h1>
     <ul class="items">${li}</ul>
   </div></div>`;
 }
 function mapHTML(){
   return `<div class="pad"><div class="wrap">
-    <p class="kick" style="text-align:center">Market map</p>
+    <h1 class="sect" style="text-align:center;margin-bottom:clamp(12px,2vh,20px)">Market Map</h1>
     <div class="mapwrap">
       <div class="mapimg" style="background-image:url('${IMG}marketmap.jpg')"></div>
       <span class="axlbl top">Premium</span>
@@ -271,7 +275,7 @@ function mapHTML(){
 }
 function vennHTML(){
   return `<div class="pad"><div class="wrap">
-    <p class="kick">Target audience</p>
+    <h1 class="sect">Audience Segments</h1>
     <div class="vennrow">
       <div class="venn">
         <div class="ell l"><span>Online entrepreneurs, bloggers, psychologists, retreat facilitators, active travellers</span></div>
@@ -288,7 +292,7 @@ function vennHTML(){
 }
 function personaHTML(){
   return `<div class="pad"><div class="wrap">
-    <p class="kick">Core audience · persona</p>
+    <h1 class="sect">Core Audience</h1>
     <div class="row2">
       <div class="photo" style="background-image:url('${IMG}persona-irina.jpg')"></div>
       <div class="ptext">
@@ -303,22 +307,22 @@ function personaHTML(){
 }
 function secondaryHTML(s){
   return `<div class="pad"><div class="wrap">
-    <div class="photo portraitwide" style="background-image:url('${IMG}${s.src}');aspect-ratio:16/6.2;margin-bottom:clamp(18px,3vh,32px)"></div>
-    <p class="kick">${s.label}</p>
-    <h1 class="mid" style="margin-bottom:12px">${s.name}</h1>
-    <p style="font-size:clamp(15px,1.6vw,20px);line-height:1.5;max-width:56ch;color:#2a2530;margin:0">${s.text}</p>
+    <h1 class="sect" style="margin-bottom:clamp(12px,2vh,18px)">Secondary Audience</h1>
+    <div class="photo portraitwide" style="background-image:url('${IMG}${s.src}');aspect-ratio:16/5.2;margin-bottom:clamp(14px,2.4vh,26px)"></div>
+    <h2 class="subhead">${s.name}</h2>
+    <p style="font-size:clamp(14px,1.55vw,19px);line-height:1.5;max-width:60ch;color:#2a2530;margin:0">${s.text}</p>
   </div></div>`;
 }
 function stmtHTML(s){
   const lines=s.lines.map(l=>`<p>${l}</p>`).join('');
   return `<div class="pad"><div class="wrap">
-    <p class="kick">${s.kick}</p>
+    <h1 class="sect">${s.title}</h1>
     <div class="stmt-lines">${lines}</div>
   </div></div>`;
 }
 function messageHTML(){
   return `<div class="pad"><div class="wrap">
-    <p class="kick">Brand message</p>
+    <h1 class="sect">Brand Message</h1>
     <p class="msg">Bold, stylish dresses that never restrict movement, are easy to care for and easy to travel with.</p>
     <p class="msg" style="margin-top:clamp(16px,2.4vh,26px);color:#fff;opacity:.92;font-weight:500;font-size:clamp(17px,2.1vw,30px)">They adapt to your body — so you don’t adapt your body to the dress, or worry about the fit.</p>
   </div></div>`;
@@ -326,16 +330,16 @@ function messageHTML(){
 function photoListHTML(s){
   const li=s.items.map(x=>`<li>${x}</li>`).join('');
   return `<div class="pad"><div class="wrap">
-    <p class="kick">${s.kick}</p>
+    <h1 class="sect">${s.title}</h1>
     <div class="row2 rev">
-      <div><ul class="items" style="margin-top:6px">${li}</ul></div>
+      <div><ul class="items" style="margin-top:2px">${li}</ul></div>
       <div class="photo" style="background-image:url('${IMG}${s.src}')"></div>
     </div>
   </div></div>`;
 }
 function roleModelHTML(){
   return `<div class="pad"><div class="wrap">
-    <p class="kick">Brand role model</p>
+    <h1 class="sect">Brand Role Model</h1>
     <div class="row2">
       <div class="photo" style="background-image:url('${IMG}rolemodel.jpg')"></div>
       <div class="ptext">
@@ -355,8 +359,7 @@ function influencersHTML(){
   ];
   const cards=people.map(p=>`<figure class="infcard"><div class="infimg" style="background-image:url('${IMG}${p[0]}')"></div><figcaption>${p[1]}</figcaption></figure>`).join('');
   return `<div class="pad"><div class="wrap">
-    <p class="kick">Brand faces · influencers</p>
-    <h1 class="mid" style="margin-bottom:clamp(16px,2.6vh,28px)">The women who speak to her.</h1>
+    <h1 class="sect" style="margin-bottom:clamp(16px,2.6vh,28px)">Influencers</h1>
     <div class="infgrid">${cards}</div>
     <p style="margin:clamp(14px,2.2vh,22px) 0 0;color:var(--ink-dim);font-size:clamp(13px,1.45vw,17px)">Also referenced: Alexandra Mitroshina.</p>
   </div></div>`;
@@ -369,9 +372,9 @@ function imageHTML(s){
 }
 function closingHTML(){
   return `<div class="pad"><div class="wrap">
-    <p class="kick">Positioning concept</p>
-    <h1 class="mid" style="max-width:20ch">Dresses that bring more colour and emotion into life —</h1>
-    <p class="msg" style="color:var(--cyan)">making it richer, more vibrant, and uniquely your own.</p>
+    <h1 class="sect">Positioning Concept</h1>
+    <p class="msg" style="max-width:24ch">Dresses that bring more colour and emotion into life —</p>
+    <p class="msg" style="color:var(--cyan);margin-top:clamp(12px,2vh,20px)">making it richer, more vibrant, and uniquely your own.</p>
   </div></div>`;
 }
 
