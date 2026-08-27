@@ -83,6 +83,23 @@
   .logos span{font-family:var(--display);font-weight:600;font-size:clamp(22px,2.6vw,38px);letter-spacing:.02em;color:var(--ink);opacity:.9;}
   .berg-wrap{width:min(72vw,720px);}
 
+  /* iceberg caption moved to the side */
+  .icerow{display:flex;align-items:stretch;justify-content:center;gap:clamp(10px,1.8vw,32px);width:100%;}
+  .icerow .berg-wrap{flex:0 1 min(56vw,76vh,760px);width:auto;min-width:0;}
+  .iceside{flex:0 0 clamp(140px,18vw,280px);display:flex;flex-direction:column;justify-content:center;position:relative;box-sizing:border-box;}
+  .iceside.left{align-items:flex-end;}
+  .iceside.right{align-items:flex-start;}
+  .iceside .icecap{margin:0;max-width:100%;}
+  .iceside.left .icecap{text-align:right;}
+  .iceside.right .icecap{text-align:left;}
+  .iceside.low .icecap{position:absolute;top:54%;left:0;right:0;}
+  @media (max-aspect-ratio: 3/4){
+    .icerow{flex-direction:column;align-items:center;}
+    .iceside{flex:none;width:100%;align-items:center;}
+    .iceside .icecap{text-align:center;position:static;}
+    .icerow .berg-wrap{flex:none;width:min(92vw,560px);}
+  }
+
   /* links + finale qr */
   .links{display:flex;flex-direction:column;align-items:center;gap:16px;margin-top:clamp(16px,2.6vh,28px);}
   .linkcard{width:min(94%,720px);display:flex;align-items:center;justify-content:space-between;gap:22px;text-decoration:none;color:var(--ink);border:1px solid var(--h-orange);border-radius:14px;padding:clamp(18px,2.2vw,28px) clamp(20px,2.3vw,32px);background:linear-gradient(120deg,rgba(255,138,30,.16),rgba(224,30,138,.05));font-family:var(--display);font-weight:500;font-size:clamp(23px,2.7vw,38px);transition:background .2s;}
@@ -251,19 +268,19 @@ const S=[
  {t:'stmt',kick:'Why we’re here',h:`Why some brands work — and <em>others don’t.</em>`},
  {t:'flow',kick:'How a brand usually gets built',items:['Collection','First batch','Fabrics & trims','Production'],icons:[IC_COLL,IC_BATCH,IC_FABRIC,IC_PROD],note:'All the energy goes into the product.'},
  {t:'flow',kick:'…and then',items:['Content','SMM agency','Almost no sales'],bigq:'Why?'},
- {t:'ice',hot:['content'],dim:['clothes','carriers','identity','idea','platform'],zones:false,labels:['content'],topnote:'What’s visible — and what gets copied',caption:`Content is only the <b>tip</b>.`},
- {t:'ice',hot:['content','clothes','carriers'],dim:['identity','idea','platform'],zones:false,labels:['content','clothes','carriers'],topnote:'How we PERCEIVE a brand — top-down',caption:'Content → clothes → design (logo, packaging, prints, tags).'},
- {t:'ice',hot:['platform','idea','identity'],dim:[],zones:true,labels:'all',topnote:'How a brand is DESIGNED — bottom-up',caption:'From the foundation up.'},
+ {t:'ice',hot:['content'],dim:['clothes','carriers','identity','idea','platform'],zones:false,labels:['content'],capside:'left',topnote:'What’s visible — and what gets copied',caption:`Content is only the <b>tip</b>.`},
+ {t:'ice',hot:['content','clothes','carriers'],dim:['identity','idea','platform'],zones:false,labels:['content','clothes','carriers'],capside:'left',topnote:'How we PERCEIVE a brand — top-down',caption:'Content → clothes → design (logo, packaging, prints, tags).'},
+ {t:'ice',hot:['platform','idea','identity'],dim:[],zones:true,labels:'all',capside:'left',topnote:'How a brand is DESIGNED — bottom-up',caption:'From the foundation up.'},
  {t:'stmt',kick:'So first',h:`What is a <em>brand?</em>`},
  {t:'stmt',kick:'A brand is',h:`A cluster of associations, feelings and sensations <em>in a buyer’s head.</em>`,img:HEAD},
  {t:'notdef',h:`A brand is <em>not</em>…`,nots:['your clothes','your design elements','your advertising'],is:'It’s what lives in the buyer’s head.',img:HEAD},
  {t:'channels'},
- {t:'ice',hot:['platform'],dim:[],zones:true,labels:'all',topnote:'What we don’t see',caption:`The <b>brand platform</b> — part of the brand strategy.`},
+ {t:'ice',hot:['platform'],dim:[],zones:true,labels:'all',capside:'right',caplow:true,topnote:'What we don’t see',caption:`The <b>brand platform</b> — part of the brand strategy.`},
  {t:'ice',hot:['idea'],dim:[],zones:true,labels:'all',detail:{layer:'idea',lines:['one thought','everything grows from it']}},
  {t:'logos',kick:'One thought — instantly recognised',items:[{img:CHANEL,name:'Chanel'},{img:LOEWE,name:'Loewe'},{img:BALEN,name:'Balenciaga'}]},
  {t:'ice',hot:['identity'],dim:[],zones:true,labels:'all',detail:{layer:'identity',lines:['logo','fonts','colours','silhouettes','visual techniques']}},
  {t:'ice',hot:['content','clothes','carriers'],dim:[],zones:true,labels:'all',topnote:'Carriers — prints · silhouettes · collections · packaging · site · tags · socials · shoots · drops',caption:`A copied tip won’t hold — the <b>90% underneath</b> isn’t yours.`},
- {t:'ice',hot:['platform'],dim:[],zones:true,labels:'all',topnote:'Why you’ve never seen one',caption:`Platform = foundation. The <b>confidential</b> part of a brand.`},
+ {t:'ice',hot:['platform'],dim:[],zones:true,labels:'all',capside:'right',caplow:true,topnote:'Why you’ve never seen one',caption:`Platform = foundation. The <b>confidential</b> part of a brand.`},
  {t:'list',kick:'A full brand strategy — the platform is one section',h:'It structures everything else.',items:[{n:'01',tt:'Company'},{n:'02',tt:'Audience research'},{n:'03',tt:'Brand platform',hot:true},{n:'04',tt:'Creative concept'},{n:'05',tt:'Tone of communication'},{n:'06',tt:'Visual guidelines'}],note:'The <b>foundation.</b> It structures everything above it.'},
  {t:'stmt',kick:'A real example',nowrap:true,h:`A dress brand: <em>Russia&nbsp;→&nbsp;US.</em>`},
  {t:'link',kick:'Now — a real brand platform',h:'Let’s open one.',links:[{label:'Client brand platform',url:PLATFORM_URL}]},
@@ -285,7 +302,7 @@ function whoami(s){return `<iframe class="animfull" src="${s.src||ANIM}" title="
 function logos(s){return `<div class="wrap"><p class="kick">${s.kick}</p><div class="logorow">${s.items.map(it=>`<div class="logocol"><div class="logochip"><img src="${it.img}" alt="${it.name}"/></div><div class="logoname">${it.name}</div></div>`).join('')}</div></div>`;}
 function linkS(s){const lk=s.links.map(l=>`<a class="linkcard" href="${l.url}" target="_blank" rel="noopener">${l.label}<span class="arw">\u2197</span></a>`).join('');return `<div class="wrap">${s.kick?`<p class="kick">${s.kick}</p>`:''}<h1 class="big">${s.h}</h1><div class="links">${lk}</div></div>`;}
 function ig(s){return `<div class="wrap" style="text-align:center"><div class="qrbox" style="display:inline-block"><img src="${IGQR}" alt="Instagram QR"/></div><div style="margin-top:26px;font-family:var(--display);font-weight:600;font-size:clamp(30px,3.6vw,56px)">${s.handle}</div></div>`;}
-function ice(s){const tn=s.topnote?`<p class="topnote">${s.topnote}</p>`:'';const cap=s.caption?`<p class="icecap">${s.caption}</p>`:'';const lg=s.logos?`<div class="logos">${s.logos.map(x=>`<span>${x}</span>`).join('')}</div>`:'';return `<div class="wrap"><div class="icewrap">${tn}<div class="berg-wrap">${BERG}</div>${lg}${cap}</div></div>`;}
+function ice(s){const tn=s.topnote?`<p class="topnote">${s.topnote}</p>`:'';const cap=s.caption?`<p class="icecap">${s.caption}</p>`:'';const lg=s.logos?`<div class="logos">${s.logos.map(x=>`<span>${x}</span>`).join('')}</div>`:'';if(s.capside&&s.caption){const side=s.capside==='right'?'right':'left';const low=s.caplow?' low':'';const capCol=`<div class="iceside ${side}${low}"><p class="icecap">${s.caption}</p></div>`;const spacer=`<div class="iceside" aria-hidden="true"></div>`;const L=side==='left'?capCol:spacer;const R=side==='right'?capCol:spacer;return `<div class="wrap"><div class="icewrap">${tn}<div class="icerow">${L}<div class="berg-wrap">${BERG}</div>${R}</div>${lg}</div></div>`;}return `<div class="wrap"><div class="icewrap">${tn}<div class="berg-wrap">${BERG}</div>${lg}${cap}</div></div>`;}
 function applyIce(el,s){const svg=el.querySelector('svg.berg');if(!svg)return;(s.hot||[]).forEach(id=>{svg.classList.add('hot-'+id);const p=svg.querySelector('#'+id);if(p)p.classList.add('pulse');});(s.dim||[]).forEach(id=>{const p=svg.querySelector('#'+id);if(p)p.classList.add('dim');});if(!s.zones)svg.querySelector('.zones').classList.add('hidden');const all=s.labels==='all';LAYERS.forEach(id=>{const g=svg.querySelector('#lbl-'+id);const on=all||(Array.isArray(s.labels)&&s.labels.includes(id));if(!on&&g)g.classList.add('hidden');});if(s.detail){const g=svg.querySelector('#lbl-'+s.detail.layer);if(g){const t=g.querySelector('text');const NS='http://www.w3.org/2000/svg';const x=t.getAttribute('x');s.detail.lines.forEach(ln=>{const ts=document.createElementNS(NS,'tspan');ts.setAttribute('class','sub');ts.setAttribute('x',x);ts.setAttribute('dy','20');ts.textContent=ln;t.appendChild(ts);});}}}
 
 function body(s){switch(s.t){case 'title':return title(s);case 'stmt':return stmt(s);case 'list':return list(s);case 'flow':return flow(s);case 'channels':return channels();case 'notdef':return notdef(s);case 'timeline':return timeline(s);case 'whoami':return whoami(s);case 'logos':return logos(s);case 'link':return linkS(s);case 'ig':return ig(s);case 'ice':return ice(s);default:return stmt(s);}}
